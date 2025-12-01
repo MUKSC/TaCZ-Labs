@@ -1,6 +1,9 @@
 package com.txttext.taczlabs.hud.crosshair;
 
+import com.tacz.guns.api.GunProperties;
+import com.tacz.guns.api.entity.IGunOperator;
 import com.tacz.guns.client.resource.index.ClientGunIndex;
+import com.tacz.guns.resource.modifier.AttachmentCacheProperty;
 import com.tacz.guns.resource.pojo.data.gun.GunData;
 import com.tacz.guns.resource.pojo.data.gun.InaccuracyType;
 import com.txttext.taczlabs.event.shoot.PlayerFireHandler;
@@ -41,7 +44,7 @@ public class Crosshair {
     private static float getSpread(CrosshairType type, ClientGunIndex gunIndex, LocalPlayer player) {
         //是否要基于真实散射
         boolean inaccuracy = inaccuracySpread.get();
-        return inaccuracy ? getRealSpread(type, gunIndex, player) : getVisalSpread(type, player);
+        return inaccuracy ? getActuallyRealSpread(type, gunIndex, player) : getVisalSpread(type, player);
 //        //使用散射映射表获取枪械扩散值
 //        gunData = gunIndex.getGunData();
 //
@@ -97,6 +100,17 @@ public class Crosshair {
 //        float spread = Mth.lerp(lerpAlpha, lastSpread, targetSpread);
 //        lastSpread = spread;//更新lastSpread
 //        return spread;
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private static float getActuallyRealSpread(CrosshairType type, ClientGunIndex gunIndex, LocalPlayer player) {
+        AttachmentCacheProperty cacheProperty = IGunOperator.fromLivingEntity(player).getCacheProperty();
+        if (cacheProperty == null) return getRealSpread(type, gunIndex, player);
+        InaccuracyType inaccuracyType = InaccuracyType.getInaccuracyType(player);
+        float inaccuracy = cacheProperty.getCache(GunProperties.INACCURACY).get(inaccuracyType);
+
+        float radius = getRadius(type);
+        return lerpAndUpdateSpread(radius * inaccuracy, radius);
     }
 
     private static float getRealSpread(CrosshairType type, ClientGunIndex gunIndex, LocalPlayer player){
