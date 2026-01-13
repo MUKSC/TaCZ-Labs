@@ -5,6 +5,7 @@ import com.tacz.guns.resource.pojo.data.gun.GunData;
 import com.tacz.guns.resource.pojo.data.gun.GunRecoil;
 import com.tacz.guns.resource.pojo.data.gun.GunRecoilKeyFrame;
 import com.txttext.taczlabs.config.fileconfig.HudConfig;
+import com.txttext.taczlabs.util.DeltaTime;
 import com.txttext.taczlabs.util.TLUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
@@ -16,6 +17,7 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 @OnlyIn(Dist.CLIENT)
 public class PlayerFireHandler {
     private static float fireSpread;
+    private static final DeltaTime deltaTime = new DeltaTime();
 
     public static void register() {
         MinecraftForge.EVENT_BUS.register(new PlayerFireHandler());
@@ -28,11 +30,14 @@ public class PlayerFireHandler {
         if(!event.getLogicalSide().isClient()) return;
         LocalPlayer player = Minecraft.getInstance().player;
         if(event.getShooter() != player) return;
+
         //获取枪械后坐力
         GunData gunData = TLUtil.getGunData(event.getGunItemStack());
         GunRecoil recoil = gunData.getRecoil();
         float kick = getRecoilKick(recoil, 1f);
-        PlayerFireHandler.fireSpread += Math.max(kick, 2) * HudConfig.shootingSpread.get();//有一个保底值，不然都看不出来动了//调倍率让视觉更明显
+
+        //加固定值，差值动画负责平滑过渡
+        PlayerFireHandler.fireSpread += Math.max(kick, 1f) * HudConfig.shootingSpread.get();//有一个保底值，不然都看不出来动了
     }
 
     public static float getRecoilKick(GunRecoil recoil, float modifier) {

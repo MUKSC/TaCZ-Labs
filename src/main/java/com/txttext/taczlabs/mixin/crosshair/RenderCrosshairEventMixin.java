@@ -74,6 +74,6 @@ public class RenderCrosshairEventMixin {
             remap = false
     )
     private static void taczlabs$resetShaderColor(GuiGraphics graphics, Window window, CallbackInfo ci){
-        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);//渲染完成后重置渲染器颜色
+        RenderSystem.setShaderColor(1F, 1F, 1F, 1F);//渲染完成后重置着色器颜色
     }
 }
