@@ -2,16 +2,21 @@ package com.txttext.taczlabs.hud.crosshair;
 
 import com.tacz.guns.api.GunProperties;
 import com.tacz.guns.api.entity.IGunOperator;
+import com.tacz.guns.api.item.gun.AbstractGunItem;
 import com.tacz.guns.client.resource.index.ClientGunIndex;
+import com.tacz.guns.item.ModernKineticGunScriptAPI;
 import com.tacz.guns.resource.modifier.AttachmentCacheProperty;
 import com.tacz.guns.resource.pojo.data.gun.GunData;
+import com.tacz.guns.resource.pojo.data.gun.GunHeatData;
 import com.tacz.guns.resource.pojo.data.gun.InaccuracyType;
 import com.txttext.taczlabs.event.shoot.PlayerFireHandler;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
+import java.util.Objects;
 
 import static com.tacz.guns.resource.pojo.data.gun.InaccuracyType.*;
 import static com.txttext.taczlabs.config.fileconfig.HudConfig.*;
@@ -104,10 +109,28 @@ public class Crosshair {
 
     @SuppressWarnings("UnstableApiUsage")
     private static float getActuallyRealSpread(CrosshairType type, ClientGunIndex gunIndex, LocalPlayer player) {
-        AttachmentCacheProperty cacheProperty = IGunOperator.fromLivingEntity(player).getCacheProperty();
+        IGunOperator operator = IGunOperator.fromLivingEntity(player);
+        ItemStack gunStack = player.getMainHandItem();
+        if (!(gunStack.getItem() instanceof AbstractGunItem)) return getRealSpread(type, gunIndex, player);
+        AttachmentCacheProperty cacheProperty = operator.getCacheProperty();
         if (cacheProperty == null) return getRealSpread(type, gunIndex, player);
+
+        ModernKineticGunScriptAPI api = new ModernKineticGunScriptAPI();
+        api.setItemStack(gunStack);
+        api.setShooter(player);
+        api.setDataHolder(operator.getDataHolder());
+
+        float heatInaccuracy = 1f;
+        if (api.hasHeatData()) {
+            GunHeatData heatData = Objects.requireNonNull(gunIndex.getGunData().getHeatData());
+            float heatMax = api.getAbstractGunItem().modifyProperty(operator.getDataHolder(), gunStack, player, GunProperties.RuntimeOnly.MAX_HEAT, Float.class, heatData.getHeatMax());
+            float heatPercentage = (api.getHeatAmount() / heatMax);
+            heatInaccuracy *= Mth.lerp(heatPercentage, heatData.getMinInaccuracy(), heatData.getMaxInaccuracy());
+        }
+
         InaccuracyType inaccuracyType = InaccuracyType.getInaccuracyType(player);
-        float inaccuracy = cacheProperty.getCache(GunProperties.INACCURACY).get(inaccuracyType);
+        final float unmodifiedInaccuracy = cacheProperty.getCache(GunProperties.INACCURACY).get(inaccuracyType) * heatInaccuracy;
+        final float inaccuracy = Math.max(0, api.getAbstractGunItem().modifyProperty(operator.getDataHolder(), gunStack, player, GunProperties.INACCURACY, Float.class, unmodifiedInaccuracy));
 
         float radius = getRadius(type);
         return lerpAndUpdateSpread(radius * inaccuracy, radius);

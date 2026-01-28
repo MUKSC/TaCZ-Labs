@@ -166,7 +166,7 @@ dependencies {
     //implementation fileTree(dir: 'lib', includes: ['*.jar'])
     //依赖lib目录下的除了xxx.jar以外的所有以.jar结尾的文件
     //implementation fileTree(dir: 'lib', excludes: ['xxx.jar'], includes: ['*.jar'])
-    implementation fg.deobf("curse.maven:timeless-and-classics-zero-1028108:6654541")
+    implementation fg.deobf("curse.maven:timeless-and-classics-zero-1028108:7401617")
     implementation fg.deobf("me.shedaniel.cloth:cloth-config-forge:11.1.136")
     implementation fg.deobf('org.apache.commons:commons-math3:3.6.1')
 
