@@ -1,6 +1,7 @@
 package com.txttext.taczlabs.config.clothconfig;
 
 import com.txttext.taczlabs.config.fileconfig.HudConfig;
+import com.txttext.taczlabs.hud.crosshair.Crosshair;
 import com.txttext.taczlabs.hud.crosshair.CrosshairType;
 import me.shedaniel.clothconfig2.api.AbstractConfigListEntry;
 import me.shedaniel.clothconfig2.api.ConfigBuilder;
@@ -67,13 +68,24 @@ public class HudClothConfig {
                 .setSaveConsumer(HudConfig.shadowOffset::set)
                 .build());
         //严格按照散射值的准星扩散
-        dynamicAndShadow.add(entryBuilder.startBooleanToggle(
-                                Component.translatable("config.taczlabs.hud.inaccuracy_spread"),
-                                HudConfig.inaccuracySpread.get()
-                        )
-                        .setDefaultValue(true)
-                        .setTooltip(Component.translatable("config.taczlabs.hud.inaccuracy_spread.desc"))
-                        .setSaveConsumer(HudConfig.inaccuracySpread::set)//Recommended: Called when user save the config
+//        dynamicAndShadow.add(entryBuilder.startBooleanToggle(
+//                                Component.translatable("config.taczlabs.hud.inaccuracy_spread"),
+//                                HudConfig.inaccuracySpread.get()
+//                        )
+//                        .setDefaultValue(true)
+//                        .setTooltip(Component.translatable("config.taczlabs.hud.inaccuracy_spread.desc"))
+//                        .setSaveConsumer(HudConfig.inaccuracySpread::set)//Recommended: Called when user save the config
+//                        .build()
+//        );
+        dynamicAndShadow.add(entryBuilder.startEnumSelector(
+                        Component.translatable("config.taczlabs.hud.spread_type"),
+                        Crosshair.SpreadType.class,
+                        HudConfig.spreadTypes.get()
+                  )
+                        .setDefaultValue(HudConfig.spreadTypes.getDefault())
+                        .setTooltip(Component.translatable("config.taczlabs.hud.spread_type.desc"))
+                        .setEnumNameProvider(value -> Component.translatable("config.taczlabs.hud.spread_type." + value.name().toLowerCase()))
+                        .setSaveConsumer(HudConfig.spreadTypes::set)//Recommended: Called when user save the config
                         .build()
         );
         //移速影响最大值
@@ -87,21 +99,21 @@ public class HudClothConfig {
         dynamicAndShadow.add(entryBuilder.startIntSlider(Component.translatable("config.taczlabs.hud.max_spread"),
                         HudConfig.maxSpread.get(), 0, 50)
                 .setTooltip(Component.translatable("config.taczlabs.hud.max_spread.desc"))
-                .setDefaultValue(20)
+                .setDefaultValue(30)
                 .setSaveConsumer(HudConfig.maxSpread::set)
                 .build());
         //动画速度
         dynamicAndShadow.add(entryBuilder.startIntSlider(Component.translatable("config.taczlabs.hud.anim_speed"),
-                        HudConfig.animSpeed.get(), 5 , 30)
-                .setDefaultValue(10)
+                        HudConfig.animSpeed.get(), 10 , 30)
+                .setDefaultValue(20)
                 .setTooltip(Component.translatable("config.taczlabs.hud.anim_speed.desc"))
                 .setSaveConsumer(HudConfig.animSpeed::set)
                 .build()
         );
         //开火抖动
         dynamicAndShadow.add(entryBuilder.startIntSlider(Component.translatable("config.taczlabs.hud.shooting_spread"),
-                        HudConfig.shootingSpread.get(), 0 , 5)
-                .setDefaultValue(2)
+                        HudConfig.shootingSpread.get(), 0 , 10)
+                .setDefaultValue(5)
                 .setTooltip(Component.translatable("config.taczlabs.hud.shooting_spread.desc"))
                 .setSaveConsumer(HudConfig.shootingSpread::set)
                 .build()

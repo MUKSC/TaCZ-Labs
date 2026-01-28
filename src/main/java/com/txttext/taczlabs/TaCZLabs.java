@@ -21,16 +21,16 @@ public class TaCZLabs {
 
     @SuppressWarnings("all")//弃用警告你够了，用新写法旧版forge会崩溃
     public TaCZLabs(){
-        if(FMLEnvironment.dist != Dist.CLIENT) return;
-
-        IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-        MinecraftForge.EVENT_BUS.register(this);//注册server与其他要监听的游戏事件
-        //MinecraftForge.EVENT_BUS.register(new CrosshairRegister());
-        //ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CommonConfig.init());
-        //ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.init());
-        ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.init());
-        ClothConfig.register();
-//        PlayerFireHandler.register();//注册监听的开火事件
+        if (FMLEnvironment.dist == Dist.CLIENT){
+            ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, ClientConfig.init());
+        }
+//        if(FMLEnvironment.dist == Dist.CLIENT) {
+//            IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
+//            MinecraftForge.EVENT_BUS.register(this);//注册server与其他要监听的游戏事件
+//            //MinecraftForge.EVENT_BUS.register(new CrosshairRegister());
+//            //ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, CommonConfig.init());
+//            //ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.init());
+//        }
     }
 
     //可以使用 EventBusSubscriber 自动注册类中注解为 @SubscribeEvent 的所有静态方法
@@ -39,6 +39,7 @@ public class TaCZLabs {
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event) {
             PlayerFireHandler.register();//注册监听的开火事件
+            ClothConfig.register();//注册配置页面
         }
     }
 }
